@@ -7,11 +7,11 @@ class Request
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
 
-    private $get;
-    private $post;
-    private $cookies;
-    private $files;
-    private $server;
+    public $get;
+    public $post;
+    public $cookies;
+    public $files;
+    public $server;
 
     private $method;
     private $uri;
@@ -33,6 +33,11 @@ class Request
     public function getMethod()
     {
         return $this->server->get('REQUEST_METHOD');
+    }
+
+    public function isMethod($method)
+    {
+        return $this->getMethod() === $method;
     }
 
     public function getUri()

@@ -6,7 +6,7 @@ use Coblog\Http\Request;
 use Coblog\Http\Response;
 use Coblog\Http\Route;
 
-class App
+class App extends Container
 {
     private $config;
 
@@ -17,14 +17,14 @@ class App
         $this->config = $config;
     }
 
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
     private function matchRoute(Request $request)
     {
         foreach ($this->routes as $route) {
-            /*var_dump(
-                preg_match($route->getRegex(), $request->getUri()), 
-                $route->getRegex(), 
-                $request->getUri()
-            );die();*/
             if (!preg_match($route->getRegex(), $request->getUri())) {
                 continue;
             }
@@ -48,7 +48,6 @@ class App
 
         }
 
-var_dump($controller);die();
         throw new \Exception('Not resolve');
     }
 
@@ -57,6 +56,9 @@ var_dump($controller);die();
         try {
             $route = $this->matchRoute($request);
             $controller = $this->resolveController($route->getController());
+
+            $r = new \ReflectionFunction($controller);
+            //var_dump($r->getParameters());die();
 
             $arguments = [$request];
             $response = call_user_func_array($controller, $arguments);
@@ -88,7 +90,9 @@ var_dump($controller);die();
             throw new \Exception('Template "' . $template . '" not found by path "' . $fileName . '".');
         }
         ob_start();
-        extract($parameters);
+        extract(array_merge([
+            'app' => $this,
+        ], $parameters));
         require $fileName;
         $content = ob_get_contents();
         ob_end_clean();
@@ -103,7 +107,7 @@ var_dump($controller);die();
         return new Response($content, $statusCode, ['Content-type' => 'text/html']);
     }
 
-    private function request($url, array $methods, $controller, array $attributes = [])
+    public function request($url, array $methods, $controller, array $attributes = [])
     {
         $route = new Route($url, $methods, $controller, $attributes);
 

@@ -6,6 +6,8 @@ class Post
 {
     private $id;
 
+    private $title;
+
     private $text;
 
     private $userId;
@@ -14,12 +16,18 @@ class Post
 
     private $createdAt;
 
-    public function __construct(User $user, $text)
+    public function __construct(User $user = null, $title = null, $text = null)
     {
-        $this->userId = $user->getId();
-        $this->userName = $user->getName();
+        //$this->userId = $user->getId();
+        //$this->userName = $user->getName();
+        $this->title = $title;
         $this->text = $text;
         $this->createdAt = new \DateTime;
+    }
+
+    public function getTitle()
+    {
+        return $this->title;
     }
 
     public function getText()
