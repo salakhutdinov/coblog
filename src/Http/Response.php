@@ -4,11 +4,11 @@ namespace Coblog\Http;
 
 class Response
 {
-    private $content;
+    protected $content;
 
-    private $statusCode;
+    protected $statusCode;
 
-    private $headers = [];
+    protected $headers = [];
 
     public function __construct($content, $statusCode = 200, array $headers = [])
     {

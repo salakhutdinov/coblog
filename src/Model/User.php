@@ -6,7 +6,7 @@ class User
 {
     private $id;
 
-    private $userName;
+    private $email;
 
     private $password;
 
@@ -15,9 +15,14 @@ class User
         return $this->id;
     }
 
-    public function getUserName()
+    public function getEmail()
     {
-        return $this->userName;
+        return $this->email;
+    }
+
+    public function getUsername()
+    {
+        return $this->getEmail();
     }
 
     public function getPassword()

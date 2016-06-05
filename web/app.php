@@ -6,7 +6,8 @@ ini_set('error_reporting', E_ALL);
 use Coblog\Http\Request;
 use Coblog\Model\Post;
 use Coblog\Form\Form;
-use Coblog\Provider\StoreProvider;
+use Coblog\Provider\StorageProvider;
+use Coblog\Provider\SecurityProvider;
 
 require __DIR__ . '/../src/autoload.php';
 
@@ -14,8 +15,8 @@ $config = require __DIR__ . '/../var/config/config.php';
 
 $app = new Coblog\App($config);
 
-$app->register(new StoreProvider);
-//$app->register(new SecurityProvider);
+$app->register(new StorageProvider);
+$app->register(new SecurityProvider);
 
 $app->get('/', function (Request $request) use ($app) {
     $postRepository = $app['document_manager']->getRepository(Post::class);
@@ -27,19 +28,23 @@ $app->get('/', function (Request $request) use ($app) {
 });
 
 $app->request('/new', [Request::METHOD_GET, Request::METHOD_POST], function (Request $request) use ($app) {
+    if (!$app['auth_manager']->isLoggedIn()) {
+        return $this->redirect('/');
+    }
+
     $form = new Form(['action' => '/new', 'method' => Request::METHOD_POST]);
+    $form->addField('title', 'text', ['required' => true]);
     $form->addField('text', 'textarea', ['required' => true]);
 
     if ($request->isMethod(Request::METHOD_POST)) {
         $form->bindRequest($request);
         if ($form->isValid()) {
             $data = $form->getData();
-            $post = new Post(null, $data['']);
+            $post = new Post($app['auth_manager']->getCurrentUser(), $data['title'], $data['text']);
 
-            $postManager = $app['store']->getManager('Post');
-            $postManager->save($post);
+            $app['document_manager']->save($post);
 
-            return new RedirectResponse('/post/' . $post->getId());
+            return $app->redirect('/post/' . $post->getId());
         }
     }
 
@@ -47,22 +52,54 @@ $app->request('/new', [Request::METHOD_GET, Request::METHOD_POST], function (Req
 });
 
 $app->get('/post/{postId}', function (Request $request, $postId) {
-    $postRepository = $app['store']->getRepository(Post::class);
-    $commentRepository = $app['store']->getRepository(Comment::class);
+    $postRepository = $app['document_manager']->getRepository(Post::class);
+    $commentRepository = $app['document_manager']->getRepository(Comment::class);
 
     $post = $postRepository->find($postId);
     $comments = $commentRepository->findBy([
         'postId' => $postId,
     ]);
 
-    return $app->render('post.html', [
+    return $app->render('post.html', 200, [
         'post' => $post,
         'comments' => $comments,
     ]);
 });
 
-$app->get('/auth', function () {
+$app->request('/login', [Request::METHOD_GET, Request::METHOD_POST], function (Request $request) use ($app) {
+    if ($app['auth_manager']->isLoggedIn()) {
+        return $this->redirect('/');
+    }
 
+    $form = new Form(['action' => '/login', 'method' => Request::METHOD_POST]);
+    $form->addField('login', 'text', ['required' => true]);
+    $form->addField('password', 'password', ['required' => true]);
+    $error = null;
+
+    if ($request->isMethod(Request::METHOD_POST)) {
+        $form->bindRequest($request);
+        if ($form->isValid()) {
+            $data = $form->getData();
+            try {
+                $app['auth_manager']->authenticate($data['login'], $data['password']);
+
+                return $app->redirect('/');
+            } catch (\Exception $e) {
+                $error = 'Bad credentials';
+            }
+        }
+    }
+
+    return $app->render('login.html', 200, [
+        'form' => $form,
+        'error' => $error,
+    ]);
+});
+
+$app->get('/logout', function () use ($app) {
+    $app['auth_manager']->logout();
+
+    return $app->redirect('/');
 });
 
 $app->run();

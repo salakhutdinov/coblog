@@ -2,13 +2,13 @@
 
 namespace Coblog\Provider;
 
-use Coblog\Store\DocumentManager;
-use Coblog\Store\DocumentPersister;
+use Coblog\Storage\DocumentManager;
+use Coblog\Storage\DocumentPersister;
 
 use Coblog\ServiceProviderInterface;
 use Coblog\Container;
 
-class StoreProvider implements ServiceProviderInterface
+class StorageProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {

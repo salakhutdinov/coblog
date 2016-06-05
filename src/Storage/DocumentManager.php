@@ -1,6 +1,6 @@
 <?php
 
-namespace Coblog\Store;
+namespace Coblog\Storage;
 
 use MongoClient;
 
@@ -20,8 +20,6 @@ class DocumentManager
         $this->db = $client->$databaseName;
         $this->documentPersister = $documentPersister;
         $this->prefix = $classPrefix;
-        //$a = 'Post';
-        //var_dump($this->db->$a->find()->count());die();
     }
 
     public function getRepository($className)

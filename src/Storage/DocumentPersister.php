@@ -1,6 +1,6 @@
 <?php
 
-namespace Coblog\Store;
+namespace Coblog\Storage;
 
 class DocumentPersister
 {
@@ -31,6 +31,7 @@ class DocumentPersister
         $reflectionObject = new \ReflectionObject($model);
         $properties = $reflectionObject->getProperties();
         foreach ($properties as $property) {
+            $property->setAccessible(true);
             if ($property->getName() === 'id') {
                 $document['_id'] = new \MongoId($property->getValue($model));
             } else {
@@ -45,7 +46,10 @@ class DocumentPersister
     private function convertPropertyFromDatabaseValue($value)
     {
         if ($value instanceof \MongoDate) {
-            return $value->toDateTime();
+            $datetime = new \DateTime;
+            $datetime->setTimestamp($value->sec);
+
+            return $datetime;
         } else {
             return $value;
         }

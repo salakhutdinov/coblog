@@ -1,6 +1,6 @@
 <?php
 
-namespace Coblog\Store;
+namespace Coblog\Storage;
 
 use Iterator;
 use MongoCursor;

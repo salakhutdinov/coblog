@@ -12,17 +12,22 @@ class Post
 
     private $userId;
 
-    private $userName;
+    private $author;
 
     private $createdAt;
 
-    public function __construct(User $user = null, $title = null, $text = null)
+    public function __construct(User $author, $title, $text)
     {
-        //$this->userId = $user->getId();
-        //$this->userName = $user->getName();
+        $this->userId = $author->getId();
+        $this->author = $author->getUsername();
         $this->title = $title;
         $this->text = $text;
         $this->createdAt = new \DateTime;
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     public function getTitle()
@@ -35,7 +40,7 @@ class Post
         return $this->text;
     }
 
-    public function getUserName()
+    public function getAuthor()
     {
         return $this->userName;
     }

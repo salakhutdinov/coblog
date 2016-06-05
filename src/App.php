@@ -4,6 +4,7 @@ namespace Coblog;
 
 use Coblog\Http\Request;
 use Coblog\Http\Response;
+use Coblog\Http\RedirectResponse;
 use Coblog\Http\Route;
 
 class App extends Container
@@ -71,7 +72,7 @@ class App extends Container
 
     public function handleException(\Exception $exception)
     {
-        return $this->render('error.html', 404, [
+        return $this->render('error.html', $exception->getCode() ?: 500, [
             'exception' => $exception,
         ]);
     }
@@ -98,6 +99,11 @@ class App extends Container
         ob_end_clean();
 
         return $content;
+    }
+
+    public function redirect($url)
+    {
+        return new RedirectResponse($url);
     }
 
     public function render($template, $statusCode = 200, array $parameters = [])

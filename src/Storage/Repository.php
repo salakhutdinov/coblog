@@ -1,6 +1,6 @@
 <?php
 
-namespace Coblog\Store;
+namespace Coblog\Storage;
 
 class Repository
 {
@@ -37,6 +37,13 @@ class Repository
         $cursor = $this->collection->find($criteria);
         
         return $this->wrapCursor($cursor);
+    }
+
+    public function findOneBy(array $criteria = [])
+    {
+        $document = $this->collection->findOne($criteria);
+
+        return $document ? $this->documentManager->createModel($document, $this->className) : null;
     }
 
     public function getDocumentManager()
