@@ -7,7 +7,7 @@ use Coblog\Http\Response;
 use Coblog\Http\RedirectResponse;
 use Coblog\Http\Route;
 
-class App extends Container
+class Kernel extends Container
 {
     private $config;
 
@@ -16,6 +16,20 @@ class App extends Container
     public function __construct(array $config = [])
     {
         $this->config = $config;
+        $this->init();
+    }
+
+    public function registerProviders()
+    {
+        return [];
+    }
+
+    protected function init()
+    {
+        $providers = $this->registerProviders();
+        foreach ($providers as $provider) {
+            $provider->register($this);
+        }
     }
 
     public function getConfig()
@@ -49,14 +63,20 @@ class App extends Container
             preg_match($route->getRegex(), $request->getUri(), $matches);
 
             $arguments = [];
-            $reflection = new \ReflectionFunction($controller);
+            if ($controller instanceof \Closure) {
+                $reflection = new \ReflectionFunction($controller);
+            } else {
+                $reflection = new \ReflectionMethod($controller[0], $controller[1]);
+            }
+            
             $parameters = $reflection->getParameters();
             foreach ($parameters as $parameter) {
                 if ($class = $parameter->getClass()) {
                     if (is_a($request, $class->getName())) {
                         $arguments[] = $request;
                     } else {
-                        $arguments[] = null;                    }
+                        throw new \Exception('Could not provider parameters with ' . $class->getName() . ' class.', 400);
+                    }
                 } elseif (isset($matches[$parameter->getName()])) {
                     $arguments[] = $matches[$parameter->getName()];
                 } else {

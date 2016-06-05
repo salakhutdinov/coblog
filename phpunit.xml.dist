@@ -1,0 +1,10 @@
+<phpunit bootstrap="src/autoload.php">
+  <testsuites>
+    <testsuite name="coblog">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <server name="CONFIG_DIR" value="var/config" />
+  </php>
+</phpunit>
