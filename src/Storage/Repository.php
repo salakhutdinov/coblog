@@ -24,17 +24,12 @@ class Repository
 
     public function find($id)
     {
-        return $this->collection->findBy(['_id' => $id]);
+        return $this->findOneBy(['_id' => new \MongoId($id)]);
     }
 
-    public function findAll()
+    public function findBy(array $criteria = [], array $sort = [])
     {
-        return $this->findBy();
-    }
-
-    public function findBy(array $criteria = [])
-    {
-        $cursor = $this->collection->find($criteria);
+        $cursor = $this->collection->find($criteria)->sort($sort);
         
         return $this->wrapCursor($cursor);
     }

@@ -11,6 +11,7 @@ require '_header.html.php';
         <h2><?=$post->getTitle()?></h2>
         <p><?=nl2br($post->getText())?></p>
         <p>Posted at: <?=$post->getCreatedAt()->format('d.m.Y H:i')?></p>
+        <p><a href="/post/<?=$post->getId()?>">Show comments</a></p>
     </div>
 <?php endforeach; ?>
 <?php

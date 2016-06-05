@@ -13,7 +13,7 @@ class AuthManager
 
     private $currentUser;
 
-    public function __construct(UserProviderInterface $userProvider, PasswordEncoder $passwordEncoder)
+    public function __construct(UserProviderInterface $userProvider, PasswordEncoderInterface $passwordEncoder)
     {
         $this->userProvider = $userProvider;
         $this->passwordEncoder = $passwordEncoder;

@@ -2,7 +2,7 @@
 
 namespace Coblog\Security;
 
-class PasswordEncoder
+class PlainPasswordEncoder implements PasswordEncoderInterface
 {
     public function encodePassword($plainPassword)
     {

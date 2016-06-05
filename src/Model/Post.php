@@ -42,7 +42,7 @@ class Post
 
     public function getAuthor()
     {
-        return $this->userName;
+        return $this->author;
     }
 
     public function getCreatedAt()

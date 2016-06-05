@@ -29,7 +29,9 @@ class Route
 
     private function createRegex($url)
     {
-        return '/^' . preg_quote($url, '/') . '$/';
+        $regex = preg_replace('#\{(\w+)\}#', '(?<$1>\w+)', $url);   
+
+        return '#^' . $regex . '$#';
     }
 
     public function getMethods()

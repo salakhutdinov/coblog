@@ -2,12 +2,17 @@
 
 require '_header.html.php';
 ?>
-<h1>New!</h1>
+<h1>New post</h1>
 <form action="<?=$form->getAction()?>" method="<?=strtolower($form->getMethod())?>">
 <?php foreach ($form->getFields() as $name => $field) : ?>
     <label>
         <?=$name?>
-        <input type="<?=$field->getType()?>" name="<?=$field->getName()?>" value="">
+        <?php if ($field->getType() == 'textarea') : ?>
+        <textarea name="<?=$field->getName()?>"><?=$field->getValue()?></textarea>
+        <?php else : ?>
+        <input type="<?=$field->getType()?>" name="<?=$field->getName()?>" value="<?=$field->getValue()?>">
+        <?php endif; ?>
+        
     </label>
     <?php if ($field->hasErrors()) : ?>
         <?php foreach ($field->getErrors() as $error) : ?>
@@ -15,7 +20,7 @@ require '_header.html.php';
         <?php endforeach; ?>
     <?php endif; ?>
 <?php endforeach; ?>
-    <input type="submit" value="Post it!">
+    <input type="submit" value="Post">
 </form>
 <?php
 

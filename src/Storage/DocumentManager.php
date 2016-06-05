@@ -36,7 +36,10 @@ class DocumentManager
         $collection = $this->getCollectionForClass(get_class($model));
         $data = $this->documentPersister->convertToDatabaseValue($model);
 
-        return $collection->save($data);
+        $result = $collection->save($data);
+        $this->documentPersister->updateId($model, $data['_id']);
+
+        return $result;
     }
 
     public function getCollectionForClass($className)

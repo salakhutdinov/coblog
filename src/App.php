@@ -38,30 +38,33 @@ class App extends Container
         }
 
         throw new \Exception('Route for uri "' . $request->getUri() . '" not found', 404);
-        //throw new RouteNotFoundException();
-    }
-
-    private function resolveController($controller)
-    {
-        if (is_callable($controller)) {
-            return $controller;
-        } elseif (false) {
-
-        }
-
-        throw new \Exception('Not resolve');
     }
 
     public function handle(Request $request)
     {
         try {
             $route = $this->matchRoute($request);
-            $controller = $this->resolveController($route->getController());
+            $controller = $route->getController();
 
-            $r = new \ReflectionFunction($controller);
-            //var_dump($r->getParameters());die();
+            preg_match($route->getRegex(), $request->getUri(), $matches);
 
-            $arguments = [$request];
+            $arguments = [];
+            $reflection = new \ReflectionFunction($controller);
+            $parameters = $reflection->getParameters();
+            foreach ($parameters as $parameter) {
+                if ($class = $parameter->getClass()) {
+                    if (is_a($request, $class->getName())) {
+                        $arguments[] = $request;
+                    } else {
+                        $arguments[] = null;                    }
+                } elseif (isset($matches[$parameter->getName()])) {
+                    $arguments[] = $matches[$parameter->getName()];
+                } else {
+                    $arguments[] = null;
+                }
+            }
+
+            
             $response = call_user_func_array($controller, $arguments);
 
             return $response;

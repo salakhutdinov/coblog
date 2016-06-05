@@ -6,7 +6,7 @@ use Coblog\ServiceProviderInterface;
 use Coblog\Container;
 use Coblog\Security\RepositoryUserProvider;
 use Coblog\Security\AuthManager;
-use Coblog\Security\PasswordEncoder;
+use Coblog\Security\PlainPasswordEncoder;
 use Coblog\Model\User;
 
 class SecurityProvider implements ServiceProviderInterface
@@ -15,7 +15,7 @@ class SecurityProvider implements ServiceProviderInterface
     {
         $userRepository = $container['document_manager']->getRepository(User::class);
         $userProvider = new RepositoryUserProvider($userRepository, 'email');
-        $passwordEncoder = new PasswordEncoder;
+        $passwordEncoder = new PlainPasswordEncoder;
         $authManager = new AuthManager($userProvider, $passwordEncoder);
         $container['auth_manager'] = $authManager;
     }

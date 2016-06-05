@@ -43,6 +43,14 @@ class DocumentPersister
         return $document;
     }
 
+    public function updateId($model, $id)
+    {
+
+        $reflectionObject = new \ReflectionObject($model);
+        $property = $reflectionObject->getProperty('id');
+        $this->updateProperty($property, $model, (string) $id);
+    }
+
     private function convertPropertyFromDatabaseValue($value)
     {
         if ($value instanceof \MongoDate) {

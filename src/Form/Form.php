@@ -60,6 +60,7 @@ class Form
             } else {
                 throw new \Exception('Only GET and POST methods are supported.');
             }
+            $field->setValue($this->data[$name]);
         }
 
         $this->binded = true;
@@ -79,7 +80,7 @@ class Form
         $valid = true;
         foreach ($this->fields as $name => $field) {
             if ($field->isRequired() && empty($this->data[$name])) {
-                $field->addError('This fields is required.');
+                $field->addError('This field is required.');
                 $valid = false;
             }
         }

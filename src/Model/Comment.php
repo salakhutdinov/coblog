@@ -14,7 +14,7 @@ class Comment
 
     private $createdAt;
 
-    public function __construct(Post $post, $text, $author)
+    public function __construct(Post $post, $author, $text)
     {
         $this->postId = $post->getId();
         $this->text = $text;

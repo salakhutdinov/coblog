@@ -5,6 +5,7 @@ ini_set('error_reporting', E_ALL);
 
 use Coblog\Http\Request;
 use Coblog\Model\Post;
+use Coblog\Model\Comment;
 use Coblog\Form\Form;
 use Coblog\Provider\StorageProvider;
 use Coblog\Provider\SecurityProvider;
@@ -20,7 +21,9 @@ $app->register(new SecurityProvider);
 
 $app->get('/', function (Request $request) use ($app) {
     $postRepository = $app['document_manager']->getRepository(Post::class);
-    $posts = $postRepository->findAll();
+    $posts = $postRepository->findBy([], [
+        'createdAt' => -1,
+    ]);
 
     return $app->render('index.html', 200, [
         'posts' => $posts,
@@ -29,7 +32,7 @@ $app->get('/', function (Request $request) use ($app) {
 
 $app->request('/new', [Request::METHOD_GET, Request::METHOD_POST], function (Request $request) use ($app) {
     if (!$app['auth_manager']->isLoggedIn()) {
-        return $this->redirect('/');
+        return $app->redirect('/');
     }
 
     $form = new Form(['action' => '/new', 'method' => Request::METHOD_POST]);
@@ -51,24 +54,43 @@ $app->request('/new', [Request::METHOD_GET, Request::METHOD_POST], function (Req
     return $app->render('new.html', 200, ['form' => $form]);
 });
 
-$app->get('/post/{postId}', function (Request $request, $postId) {
+$app->request('/post/{postId}', [Request::METHOD_GET, Request::METHOD_POST], function (Request $request, $postId) use ($app) {
     $postRepository = $app['document_manager']->getRepository(Post::class);
     $commentRepository = $app['document_manager']->getRepository(Comment::class);
 
     $post = $postRepository->find($postId);
     $comments = $commentRepository->findBy([
         'postId' => $postId,
+    ], [
+        'createdAt' => -1,
     ]);
+
+    $form = new Form(['action' => '/post/' . $post->getId(), 'method' => Request::METHOD_POST]);
+    $form->addField('author', 'text', ['required' => true]);
+    $form->addField('text', 'text', ['required' => true]);
+    $error = null;
+
+    if ($request->isMethod(Request::METHOD_POST)) {
+        $form->bindRequest($request);
+        if ($form->isValid()) {
+            $data = $form->getData();
+            $comment = new Comment($post, $data['author'], $data['text']);
+            $app['document_manager']->save($comment);
+
+            return $app->redirect('/post/' . $post->getId());
+        }
+    }
 
     return $app->render('post.html', 200, [
         'post' => $post,
         'comments' => $comments,
+        'form' => $form,
     ]);
 });
 
 $app->request('/login', [Request::METHOD_GET, Request::METHOD_POST], function (Request $request) use ($app) {
     if ($app['auth_manager']->isLoggedIn()) {
-        return $this->redirect('/');
+        return $app->redirect('/');
     }
 
     $form = new Form(['action' => '/login', 'method' => Request::METHOD_POST]);
