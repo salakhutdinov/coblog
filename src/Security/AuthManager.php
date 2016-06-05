@@ -22,7 +22,7 @@ class AuthManager
 
     private function init()
     {
-        session_start();
+        //session_start();
         if (isset($_SESSION['_username'])) {
             try {
                 $username = $_SESSION['_username'];

@@ -1,4 +1,10 @@
 {
+    "autoload": {
+        "psr-4": {
+            "Coblog\\": "src/",
+            "tests\\": "tests"
+        }
+    },
     "require-dev": {
         "phpunit/phpunit": "5.4.*"
     }

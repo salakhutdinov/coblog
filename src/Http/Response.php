@@ -28,9 +28,19 @@ class Response
         }
     }
 
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
     public function sendContent()
     {
         echo $this->content;
+    }
+
+    public function getContent()
+    {
+        return $this->content;
     }
 
     public function send()
