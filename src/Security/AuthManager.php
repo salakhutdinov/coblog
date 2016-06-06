@@ -9,7 +9,7 @@ class AuthManager
 {
     private $passwordEncoder;
 
-    private $userProdiver;
+    private $userProvider;
 
     private $currentUser;
 
@@ -22,7 +22,9 @@ class AuthManager
 
     private function init()
     {
-        //session_start();
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
         if (isset($_SESSION['_username'])) {
             try {
                 $username = $_SESSION['_username'];

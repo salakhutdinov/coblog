@@ -17,6 +17,11 @@ class Response
         $this->headers = $headers;
     }
 
+    public function getStatusCode()
+    {
+        return $this->statusCode;
+    }
+
     public function sendHeaders()
     {
         if (headers_sent()) {

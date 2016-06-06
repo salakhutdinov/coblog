@@ -29,7 +29,7 @@ class Route
 
     private function createRegex($url)
     {
-        $regex = preg_replace('#\{(\w+)\}#', '(?<$1>\w+)', $url);   
+        $regex = preg_replace('#\{(\w+)\}#', '(?<$1>\w+)', $url);
 
         return '#^' . $regex . '$#';
     }
@@ -42,10 +42,5 @@ class Route
     public function getController()
     {
         return $this->controller;
-    }
-
-    private function compileUrl()
-    {
-
     }
 }

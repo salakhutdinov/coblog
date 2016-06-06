@@ -17,6 +17,6 @@ class WebTestCase extends TestCase
 
     public function createClient()
     {
-        return new Client($this->createKernel());        
+        return new Client($this->createKernel());
     }
 }

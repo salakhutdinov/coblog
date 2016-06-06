@@ -9,16 +9,34 @@ use Coblog\Http\Route;
 
 class Kernel extends Container
 {
+    /**
+     * Application config.
+     *
+     * @var array
+     */
     private $config;
 
+    /**
+     * Array of application routes.
+     *
+     * @var array
+     */
     private $routes = [];
 
+    /**
+     * @param array $config
+     */
     public function __construct(array $config = [])
     {
         $this->config = $config;
         $this->init();
     }
 
+    /**
+     * Returns array of providers.
+     *
+     * @return array
+     */
     public function registerProviders()
     {
         return [];
@@ -32,6 +50,9 @@ class Kernel extends Container
         }
     }
 
+    /**
+     * @return array
+     */
     public function getConfig()
     {
         return $this->config;
@@ -54,6 +75,13 @@ class Kernel extends Container
         throw new \Exception('Route for uri "' . $request->getUri() . '" not found', 404);
     }
 
+    /**
+     * Handling request and return Response object.
+     *
+     * @param \Coblog\Http\Request $request
+     * @return \Coblog\Http\Response
+     * @throws \Exception
+     */
     public function handle(Request $request)
     {
         try {
@@ -68,14 +96,14 @@ class Kernel extends Container
             } else {
                 $reflection = new \ReflectionMethod($controller[0], $controller[1]);
             }
-            
+
             $parameters = $reflection->getParameters();
             foreach ($parameters as $parameter) {
                 if ($class = $parameter->getClass()) {
                     if (is_a($request, $class->getName())) {
                         $arguments[] = $request;
                     } else {
-                        throw new \Exception('Could not provider parameters with ' . $class->getName() . ' class.', 400);
+                        throw new \Exception('Could not provide parameter with ' . $class->getName() . ' class.', 400);
                     }
                 } elseif (isset($matches[$parameter->getName()])) {
                     $arguments[] = $matches[$parameter->getName()];
@@ -84,7 +112,7 @@ class Kernel extends Container
                 }
             }
 
-            
+
             $response = call_user_func_array($controller, $arguments);
 
             return $response;
@@ -93,6 +121,12 @@ class Kernel extends Container
         }
     }
 
+    /**
+     * Handling exception.
+     *
+     * @param \Exception $exception
+     * @return \Coblog\Http\Response
+     */
     public function handleException(\Exception $exception)
     {
         return $this->render('error.html', $exception->getCode() ?: 500, [
@@ -100,6 +134,9 @@ class Kernel extends Container
         ]);
     }
 
+    /**
+     * Run application to handle request.
+     */
     public function run()
     {
         $request = Request::createFromGlobals();
@@ -107,6 +144,14 @@ class Kernel extends Container
         $response->send();
     }
 
+    /**
+     * Rendering template and returns template output.
+     *
+     * @param string $template
+     * @param array $parameters
+     * @return string
+     * @throws \Exception
+     */
     public function renderTemplate($template, array $parameters = [])
     {
         $fileName = $this->config['views_dir'] . '/' . $template . '.php';
@@ -124,11 +169,25 @@ class Kernel extends Container
         return $content;
     }
 
+    /**
+     * Return response with redirect header.
+     *
+     * @param type $url
+     * @return \Coblog\Http\RedirectResponse
+     */
     public function redirect($url)
     {
         return new RedirectResponse($url);
     }
 
+    /**
+     * Rendering template and returns Response object.
+     *
+     * @param string $template
+     * @param int $statusCode
+     * @param array $parameters
+     * @return \Coblog\Http\Response
+     */
     public function render($template, $statusCode = 200, array $parameters = [])
     {
         $content = $this->renderTemplate($template, $parameters);
@@ -136,20 +195,39 @@ class Kernel extends Container
         return new Response($content, $statusCode, ['Content-type' => 'text/html']);
     }
 
-    public function request($url, array $methods, $controller, array $attributes = [])
+    /**
+     * Registering a controller with route.
+     *
+     * @param string $url
+     * @param array $methods
+     * @param callable $controller
+     */
+    public function request($url, array $methods, callable $controller)
     {
-        $route = new Route($url, $methods, $controller, $attributes);
+        $route = new Route($url, $methods, $controller);
 
         $this->routes[] = $route;
     }
 
-    public function get($url, $controller, array $attributes = [])
+    /**
+     * Registering a controller with GET method.
+     *
+     * @param string $url
+     * @param callable $controller
+     */
+    public function get($url, callable $controller)
     {
-        return $this->request($url, [Request::METHOD_GET], $controller);
+        $this->request($url, [Request::METHOD_GET], $controller);
     }
 
-    public function post($url, $controller, array $attributes = [])
+    /**
+     * Registering a controller with POST method.
+     *
+     * @param string $url
+     * @param callable $controller
+     */
+    public function post($url, callable $controller)
     {
-        return $this->request($url, [Request::METHOD_GET], $controller);
+        $this->request($url, [Request::METHOD_GET], $controller);
     }
 }
