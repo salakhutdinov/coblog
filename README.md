@@ -29,10 +29,11 @@ NB Важно написать его красиво с точки зрения 
 Запуск проекта
 --------------
 
-Строку подключения к базе данных можно указать в конфиге `var/config/config.php`
+Строку подключения и имя базы данных можно указать в конфиге `var/config/config.php`
 
 ```php
-    'dbpath' => __DIR__ . '../var/db.json',
+    'db_server' => 'mongodb://localhost:27017',
+    'db_name' => 'coblog',
 ```
 
 Проект можно запустить при помощи встроенного веб-сервера
@@ -44,7 +45,7 @@ php -S localhost:8000 web/app.php
 Тестовые фикстуры можно загрузит с помощью php-скрипта `load-fixtures.php`
 
 ```shell
-php src\load-fixtures.php
+php var/load-fixtures.php
 ```
 
 Фикстуры создают нового пользователя `test@example.com` с паролем `test`
